@@ -2,11 +2,10 @@ package com.artyomefimov.flowtraining
 
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
-import junit.framework.Assert.*
+import junit.framework.Assert.assertEquals
+import junit.framework.Assert.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runBlockingTest
@@ -183,7 +182,7 @@ class FlowCreatingTest : BaseTest() {
         testObject.onlyComplete()
             .noticeCompletion()
             .noticeError()
-            .collect { }
+            .toList()
 
         assertCompleted()
         assertNoExceptions()
@@ -194,7 +193,7 @@ class FlowCreatingTest : BaseTest() {
         testObject.onlyError()
             .noticeCompletion()
             .noticeError()
-            .collect { }
+            .toList()
 
         assertExpectedException()
     }
