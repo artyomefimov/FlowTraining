@@ -16,23 +16,20 @@ import org.mockito.ArgumentMatchers.anyBoolean
 @ExperimentalCoroutinesApi
 class FlowCreatingTest : BaseTest() {
 
-    private companion object {
-        const val VALUE = 1
-        val STRING_LIST = listOf("1", "2", "3")
-    }
-
     @Test
     fun `test value to flow`() = runBlockingTest {
-        testObject.valueToFlow(VALUE)
+        val value = 1
+        testObject.valueToFlow(value)
             .failOnError()
-            .assertValue(VALUE)
+            .assertValue(value)
     }
 
     @Test
-    fun `test array to flow`() = runBlockingTest {
-        testObject.listToFlow(STRING_LIST)
+    fun `test list to flow`() = runBlockingTest {
+        val list = listOf("1", "2", "3")
+        testObject.listToFlow(list)
             .failOnError()
-            .assertValues(STRING_LIST)
+            .assertValues(list)
     }
 
     @Test
@@ -63,17 +60,15 @@ class FlowCreatingTest : BaseTest() {
         }
 
         advanceTimeBy(initialDelay)
-        assertEquals(0L, result.last())
+        assertEquals(listOf(0L), result)
 
         advanceTimeBy(period)
-        assertEquals(1L, result.last())
+        assertEquals(listOf(0L, 1L), result)
 
         advanceTimeBy(period)
-        assertEquals(2L, result.last())
+        assertEquals(listOf(0L, 1L, 2L), result)
 
         job.cancel()
-
-        assertEquals(3, result.size)
     }
 
     @Test
@@ -100,10 +95,9 @@ class FlowCreatingTest : BaseTest() {
 
     @Test
     fun `test methods combination with error`() = runBlockingTest {
-        var exception: Throwable? = null // todo вынести в Base
         val flow = testObject.combinationExpensiveMethods(true)
             .noticeCompletion()
-            .catch { exception = it }
+            .noticeError()
         val result = mutableListOf<Int>()
 
         verify(testObject, never()).expensiveMethod()
@@ -117,17 +111,15 @@ class FlowCreatingTest : BaseTest() {
         verify(testObject).unstableMethod(anyBoolean())
 
         assertEquals(2, result.size)
-        assertNotNull(exception)
-        assertTrue(exception is ExpectedException)
-        //assertFalse(isCompleted) // падает
+        assertExpectedException()
+        assertCompleted()
     }
 
     @Test
     fun `test methods combination without error`() = runBlockingTest {
-        var exception: Throwable? = null // todo вынести в Base
         val flow = testObject.combinationExpensiveMethods(false)
             .noticeCompletion()
-            .catch { exception = it }
+            .noticeError()
         val result = mutableListOf<Int>()
 
         verify(testObject, never()).expensiveMethod()
@@ -141,8 +133,8 @@ class FlowCreatingTest : BaseTest() {
         verify(testObject).unstableMethod(anyBoolean())
 
         assertEquals(3, result.size)
-        assertNull(exception)
-        //assertFalse(isCompleted) // падает
+        assertNoExceptions()
+        assertCompleted()
     }
 
     @Test
@@ -157,7 +149,7 @@ class FlowCreatingTest : BaseTest() {
                 }
         }
 
-        assertFalse(isCompleted)
+        assertNotCompleted()
         assertTrue(result.isEmpty())
         job.cancel()
     }
@@ -167,21 +159,18 @@ class FlowCreatingTest : BaseTest() {
         testObject.onlyComplete()
             .noticeCompletion()
             .failOnError()
-            .collect {  }
+            .collect { }
 
-        assertTrue(isCompleted)
+        assertCompleted()
     }
 
     @Test
     fun `test only error`() = runBlockingTest {
-        var exception: Throwable? = null
-
         testObject.onlyError()
             .noticeCompletion()
-            .catch { exception = it }
-            .collect {  }
+            .noticeError()
+            .collect { }
 
-        assertNotNull(exception)
-        assertTrue(exception is ExpectedException)
+        assertExpectedException()
     }
 }

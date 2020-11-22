@@ -32,7 +32,7 @@ fun TestObject.delayedZero(delay: Long) = flow {
     emit(0L)
 }
 
-fun TestObject.combinationExpensiveMethods(condition: Boolean) = flow<Int> {
+fun TestObject.combinationExpensiveMethods(condition: Boolean) = flow {
     emit(expensiveMethod())
     emit(anotherExpensiveMethod())
     emit(unstableMethod(condition))
