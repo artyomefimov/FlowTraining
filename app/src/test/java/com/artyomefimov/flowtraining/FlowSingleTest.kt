@@ -54,10 +54,8 @@ class FlowSingleTest : BaseTest() {
 
     @Test
     fun `test only one element of sequence error`() = runBlockingTest {
-        val data = listOf<Int>()
-
         testObject
-            .firstElementOfSequence(data.asFlow())
+            .firstElementOfSequence(flowOf())
             .noticeError()
             .noticeCompletion()
             .toList()
