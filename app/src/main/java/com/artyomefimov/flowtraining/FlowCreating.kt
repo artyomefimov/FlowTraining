@@ -1,11 +1,15 @@
 package com.artyomefimov.flowtraining
 
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 
 fun TestObject.valueToFlow(value: Int) = flow {
     emit(value)
 }
+
+fun TestObject.varargToFlow(vararg values: Int) = values.asFlow()
 
 fun TestObject.listToFlow(list: List<String>) = flow {
     list.forEach {
@@ -19,7 +23,8 @@ fun TestObject.expensiveMethodResult() = flow {
 
 fun TestObject.increasingSequenceWithDelays(
     initialDelay: Long,
-    period: Long) = flow {
+    period: Long
+) = flow {
     delay(initialDelay)
     for (i in 0L..Long.MAX_VALUE) {
         emit(i)

@@ -19,8 +19,10 @@ import org.mockito.Mockito.reset
 open class BaseTest {
 
     protected val testObject: TestObject = Mockito.spy(TestObject())
-    protected var isCompleted = false
-    protected var exception: Throwable? = null
+
+    private var isCompleted = false
+    private var exception: Throwable? = null
+
     private val mainThreadSurrogate =
         newSingleThreadContext("UI thread")
 
@@ -42,14 +44,15 @@ open class BaseTest {
 
     fun <T> Flow<T>.noticeError() = catch { exception = it }
 
-    fun <T> Flow<T>.failOnError() = catch { fail() }
-
     suspend fun <T> Flow<T>.assertValue(value: T) = collect {
         assertEquals(value, it)
     }
 
     suspend fun <T> Flow<T>.assertValues(values: List<T>) {
-        assertEquals(values, toList())
+        assertEquals(
+            values,
+            toList()
+        )
     }
 
     fun assertExpectedException() {

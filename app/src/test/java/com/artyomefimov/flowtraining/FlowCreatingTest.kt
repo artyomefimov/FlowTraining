@@ -7,6 +7,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
@@ -20,29 +21,52 @@ class FlowCreatingTest : BaseTest() {
     fun `test value to flow`() = runBlockingTest {
         val value = 1
         testObject.valueToFlow(value)
-            .failOnError()
+            .noticeCompletion()
+            .noticeError()
             .assertValue(value)
+
+        assertCompleted()
+        assertNoExceptions()
+    }
+
+    @Test
+    fun `test vararg to flow`() = runBlockingTest {
+        testObject.varargToFlow(1, 2, 3)
+            .noticeCompletion()
+            .noticeError()
+            .assertValues(listOf(1, 2, 3))
+
+        assertCompleted()
+        assertNoExceptions()
     }
 
     @Test
     fun `test list to flow`() = runBlockingTest {
         val list = listOf("1", "2", "3")
         testObject.listToFlow(list)
-            .failOnError()
+            .noticeCompletion()
+            .noticeError()
             .assertValues(list)
+
+        assertCompleted()
+        assertNoExceptions()
     }
 
     @Test
     fun `test expensive method result`() = runBlockingTest {
         val flow = testObject
             .expensiveMethodResult()
-            .failOnError()
+            .noticeCompletion()
+            .noticeError()
 
         verify(testObject, never()).expensiveMethod()
 
         flow.assertValue(Int.MAX_VALUE)
 
         verify(testObject).expensiveMethod()
+
+        assertCompleted()
+        assertNoExceptions()
     }
 
     @Test
@@ -53,10 +77,9 @@ class FlowCreatingTest : BaseTest() {
 
         val job = launch {
             testObject.increasingSequenceWithDelays(initialDelay, period)
-                .failOnError()
-                .collect {
-                    result.add(it)
-                }
+                .noticeCompletion()
+                .noticeError()
+                .toList(result)
         }
 
         advanceTimeBy(initialDelay)
@@ -69,6 +92,9 @@ class FlowCreatingTest : BaseTest() {
         assertEquals(listOf(0L, 1L, 2L), result)
 
         job.cancel()
+
+        assertCompleted()
+        assertNoExceptions()
     }
 
     @Test
@@ -78,10 +104,9 @@ class FlowCreatingTest : BaseTest() {
 
         val job = launch {
             testObject.delayedZero(delay)
-                .failOnError()
-                .collect {
-                    result.add(it)
-                }
+                .noticeCompletion()
+                .noticeError()
+                .toList(result)
         }
 
         advanceTimeBy(delay - 1)
@@ -104,7 +129,7 @@ class FlowCreatingTest : BaseTest() {
         verify(testObject, never()).anotherExpensiveMethod()
         verify(testObject, never()).unstableMethod(anyBoolean())
 
-        flow.collect { result.add(it) }
+        flow.toList(result)
 
         verify(testObject).expensiveMethod()
         verify(testObject).anotherExpensiveMethod()
@@ -126,7 +151,7 @@ class FlowCreatingTest : BaseTest() {
         verify(testObject, never()).anotherExpensiveMethod()
         verify(testObject, never()).unstableMethod(anyBoolean())
 
-        flow.collect { result.add(it) }
+        flow.toList(result)
 
         verify(testObject).expensiveMethod()
         verify(testObject).anotherExpensiveMethod()
@@ -143,13 +168,12 @@ class FlowCreatingTest : BaseTest() {
         val job = launch {
             testObject.withoutAnyEvents()
                 .noticeCompletion()
-                .failOnError()
-                .collect {
-                    result.add(it)
-                }
+                .noticeError()
+                .toList(result)
         }
 
         assertNotCompleted()
+        assertNoExceptions()
         assertTrue(result.isEmpty())
         job.cancel()
     }
@@ -158,10 +182,11 @@ class FlowCreatingTest : BaseTest() {
     fun `test only complete`() = runBlockingTest {
         testObject.onlyComplete()
             .noticeCompletion()
-            .failOnError()
+            .noticeError()
             .collect { }
 
         assertCompleted()
+        assertNoExceptions()
     }
 
     @Test
