@@ -1,5 +1,6 @@
 package com.artyomefimov.flowtraining
 
+import com.artyomefimov.flowtraining.model.ExpectedException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.flow.flow

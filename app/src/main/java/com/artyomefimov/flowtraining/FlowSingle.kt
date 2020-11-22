@@ -1,5 +1,7 @@
 package com.artyomefimov.flowtraining
 
+import com.artyomefimov.flowtraining.model.ExpectedException
+import com.artyomefimov.flowtraining.model.TestObject
 import kotlinx.coroutines.flow.*
 
 fun TestObject.onlyOneElement(value: Int) = flow {

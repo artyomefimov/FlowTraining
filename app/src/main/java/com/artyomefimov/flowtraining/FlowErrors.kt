@@ -1,5 +1,6 @@
 package com.artyomefimov.flowtraining
 
+import com.artyomefimov.flowtraining.model.TestObject
 import kotlinx.coroutines.flow.*
 
 fun TestObject.handleErrorsWithDefaultValue(intFlow: Flow<Int>, defaultValue: Int) = flow {

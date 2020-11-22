@@ -1,4 +1,4 @@
-package com.artyomefimov.flowtraining
+package com.artyomefimov.flowtraining.model
 
 import kotlinx.coroutines.delay
 

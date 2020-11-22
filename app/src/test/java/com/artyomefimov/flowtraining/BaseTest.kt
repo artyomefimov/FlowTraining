@@ -1,6 +1,7 @@
 package com.artyomefimov.flowtraining
 
-import org.junit.Assert.*
+import com.artyomefimov.flowtraining.model.ExpectedException
+import com.artyomefimov.flowtraining.model.TestObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
@@ -9,7 +10,7 @@ import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.After
-import org.junit.Assert
+import org.junit.Assert.*
 import org.junit.Before
 import org.mockito.Mockito
 import org.mockito.Mockito.reset

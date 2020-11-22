@@ -1,5 +1,6 @@
 package com.artyomefimov.flowtraining
 
+import com.artyomefimov.flowtraining.model.TestObject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow

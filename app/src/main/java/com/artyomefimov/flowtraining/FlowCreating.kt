@@ -1,9 +1,10 @@
 package com.artyomefimov.flowtraining
 
+import com.artyomefimov.flowtraining.model.ExpectedException
+import com.artyomefimov.flowtraining.model.TestObject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 
 fun TestObject.valueToFlow(value: Int) = flow {
     emit(value)
