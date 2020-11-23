@@ -19,4 +19,6 @@ open class TestObject {
             throw ExpectedException()
         return Int.MAX_VALUE
     }
+
+    open fun requestApiEntity(id: Int) = Entity(id, id.toString())
 }

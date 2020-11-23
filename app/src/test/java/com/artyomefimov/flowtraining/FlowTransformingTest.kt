@@ -1,5 +1,6 @@
 package com.artyomefimov.flowtraining
 
+import com.artyomefimov.flowtraining.model.Entity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.ObsoleteCoroutinesApi
@@ -30,10 +31,10 @@ class FlowTransformingTest : BaseTest() {
     fun `test get pair by id`() = runBlockingTest {
         val given = listOf(0, 1, 2, 3)
         val expected = listOf(
-            0 to "0",
-            1 to "1",
-            2 to "2",
-            3 to "3"
+            Entity(0, "0"),
+            Entity(1, "1"),
+            Entity(2, "2"),
+            Entity(3, "3"),
         )
 
         testObject.getPairById(given.asFlow())
