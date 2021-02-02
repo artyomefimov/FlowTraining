@@ -35,7 +35,7 @@ class FlowCombiningTest: BaseTest() {
         val categoryData = listOf(1, 2, 3, 4, 5)
         val expected = listOf("a -> 1", "ab -> 1", "ab -> 2", "abc -> 2", "abc -> 3", "abc -> 4", "abc -> 5")
 
-       val result = testObject.requestItems(
+       testObject.requestItems(
             searchData.asFlow().onEach { delay(20L) },
             categoryData.asFlow().onEach { delay(30L) }
         )

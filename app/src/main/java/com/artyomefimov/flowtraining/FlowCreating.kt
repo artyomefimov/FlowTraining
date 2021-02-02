@@ -18,10 +18,10 @@ fun TestObject.valueToFlow(value: Int) = flow {
 }
 
 /**
- * Эммит элементов списка в [Flow]
+ * Эммит произвольного количества чисел в [Flow]
  *
- * @param values - Произвольные строки
- * @return [Flow], который эммитит по порядку все строки из заданного массива
+ * @param values - Произвольное количество чисел
+ * @return [Flow], который эммитит по порядку все числа, переданные в аргументы метода
  */
 fun TestObject.varargToFlow(vararg values: Int) = values.asFlow()
 
