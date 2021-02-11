@@ -2,10 +2,12 @@ package com.artyomefimov.flowtraining
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.test.runBlockingTest
-import org.junit.Assert.assertNull
+import org.junit.Assert.*
 import org.junit.Test
 
 @ObsoleteCoroutinesApi
@@ -13,6 +15,8 @@ import org.junit.Test
 class FlowMaybeTest : BaseTest() {
 
     private companion object {
+        val flowMaybe = FlowMaybe()
+
         const val POSITIVE_VALUE = 1
         const val NEGATIVE_VALUE = -1
         var expectedResult: Int? = null
@@ -20,72 +24,73 @@ class FlowMaybeTest : BaseTest() {
 
     @Test
     fun `test positive or empty success`() = runBlockingTest {
-        testObject.positiveOrEmpty(POSITIVE_VALUE)
-            .noticeCompletion()
-            .noticeError()
-            .assertValue(POSITIVE_VALUE)
+        flowMaybe.positiveOrEmpty(POSITIVE_VALUE)
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
+            .collect { assertEquals(POSITIVE_VALUE, it) }
 
-        assertCompleted()
-        assertNoExceptions()
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.noExceptions())
     }
 
     @Test
     fun `test positive or empty fail`() = runBlockingTest {
-        testObject.positiveOrEmpty(NEGATIVE_VALUE)
-            .noticeCompletion()
-            .noticeError()
+        flowMaybe.positiveOrEmpty(NEGATIVE_VALUE)
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
             .collect { expectedResult = it }
 
-        assertCompleted()
-        assertNoExceptions()
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.noExceptions())
         assertNull(expectedResult)
     }
 
     @Test
     fun `test positive or empty from flow success`() = runBlockingTest {
-        testObject.positiveOrEmptyFromFlow(flowOf(POSITIVE_VALUE))
-            .noticeCompletion()
-            .noticeError()
-            .assertValue(POSITIVE_VALUE)
+        flowMaybe.positiveOrEmptyFromFlow(flowOf(POSITIVE_VALUE))
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
+            .collect { assertEquals(POSITIVE_VALUE, it) }
 
-        assertCompleted()
-        assertNoExceptions()
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.noExceptions())
     }
 
     @Test
     fun `test positive or empty from flow fail`() = runBlockingTest {
-        testObject.positiveOrEmptyFromFlow(flowOf(NEGATIVE_VALUE))
-            .noticeCompletion()
-            .noticeError()
+        flowMaybe.positiveOrEmptyFromFlow(flowOf(NEGATIVE_VALUE))
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
             .collect { expectedResult = it }
 
-        assertCompleted()
-        assertNoExceptions()
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.noExceptions())
         assertNull(expectedResult)
     }
 
     @Test
     fun `test only one element has values`() = runBlockingTest {
         val defaultValue = 2
-        testObject.onlyOneElement(flowOf(POSITIVE_VALUE), defaultValue)
-            .noticeCompletion()
-            .noticeError()
-            .assertValue(POSITIVE_VALUE)
 
-        assertCompleted()
-        assertNoExceptions()
+        flowMaybe.onlyOneElement(flowOf(POSITIVE_VALUE), defaultValue)
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
+            .collect { assertEquals(POSITIVE_VALUE, it) }
+
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.noExceptions())
     }
 
     @Test
     fun `test only one element no values`() = runBlockingTest {
         val defaultValue = 2
 
-        testObject.onlyOneElement(flowOf(), defaultValue)
-            .noticeCompletion()
-            .noticeError()
-            .assertValue(defaultValue)
+        flowMaybe.onlyOneElement(flowOf(), defaultValue)
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
+            .collect { assertEquals(defaultValue, it) }
 
-        assertCompleted()
-        assertNoExceptions()
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.noExceptions())
     }
 }

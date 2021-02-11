@@ -3,10 +3,10 @@ package com.artyomefimov.flowtraining
 import com.artyomefimov.flowtraining.model.ExpectedException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.test.runBlockingTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 @ObsoleteCoroutinesApi
@@ -14,6 +14,8 @@ import org.junit.Test
 class FlowErrorsTest : BaseTest() {
 
     private companion object {
+        val flowErrors = FlowErrors()
+
         val testList = listOf(1, 2, 3)
         const val defaultValue = 4
         val intFlow = flow {
@@ -25,51 +27,51 @@ class FlowErrorsTest : BaseTest() {
 
     @Test
     fun `test handle errors with default value no errors`() = runBlockingTest {
-        testObject
-            .handleErrorsWithDefaultValue(intFlow, defaultValue)
-            .noticeCompletion()
-            .noticeError()
-            .assertValues(testList)
+        flowErrors.handleErrorsWithDefaultValue(intFlow, defaultValue)
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
+            .toList()
+            .also { assertEquals(testList, it) }
 
-        assertCompleted()
-        assertNoExceptions()
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.noExceptions())
     }
 
     @Test
     fun `test handle errors with default value with error`() = runBlockingTest {
         val flowWithError = intFlow.onCompletion { throw ExpectedException() }
-        testObject
-            .handleErrorsWithDefaultValue(flowWithError, defaultValue)
-            .noticeCompletion()
-            .noticeError()
-            .assertValues(testList + defaultValue)
+        flowErrors.handleErrorsWithDefaultValue(flowWithError, defaultValue)
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
+            .toList()
+            .also { assertEquals(testList + defaultValue, it) }
 
-        assertCompleted()
-        assertNoExceptions()
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.noExceptions())
     }
 
     @Test
     fun `handle errors with fallback flow without error`() = runBlockingTest {
-        testObject
-            .handleErrorsWithFallbackFlow(intFlow, flowOf(defaultValue))
-            .noticeCompletion()
-            .noticeError()
-            .assertValues(testList)
+        flowErrors.handleErrorsWithFallbackFlow(intFlow, flowOf(defaultValue))
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
+            .toList()
+            .also { assertEquals(testList, it) }
 
-        assertCompleted()
-        assertNoExceptions()
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.noExceptions())
     }
 
     @Test
     fun `test handle errors with fallback flow with error`() = runBlockingTest {
         val flowWithError = intFlow.onCompletion { throw ExpectedException() }
-        testObject
-            .handleErrorsWithFallbackFlow(flowWithError, flowOf(defaultValue))
-            .noticeCompletion()
-            .noticeError()
-            .assertValues(testList + defaultValue)
+        flowErrors.handleErrorsWithFallbackFlow(flowWithError, flowOf(defaultValue))
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
+            .toList()
+            .also { assertEquals(testList + defaultValue, it) }
 
-        assertCompleted()
-        assertNoExceptions()
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.noExceptions())
     }
 }
