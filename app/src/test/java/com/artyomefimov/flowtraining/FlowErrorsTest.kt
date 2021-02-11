@@ -14,6 +14,8 @@ import org.junit.Test
 class FlowErrorsTest : BaseTest() {
 
     private companion object {
+        val flowErrors = FlowErrors()
+
         val testList = listOf(1, 2, 3)
         const val defaultValue = 4
         val intFlow = flow {
@@ -25,7 +27,7 @@ class FlowErrorsTest : BaseTest() {
 
     @Test
     fun `test handle errors with default value no errors`() = runBlockingTest {
-        handleErrorsWithDefaultValue(intFlow, defaultValue)
+        flowErrors.handleErrorsWithDefaultValue(intFlow, defaultValue)
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .toList()
@@ -38,7 +40,7 @@ class FlowErrorsTest : BaseTest() {
     @Test
     fun `test handle errors with default value with error`() = runBlockingTest {
         val flowWithError = intFlow.onCompletion { throw ExpectedException() }
-        handleErrorsWithDefaultValue(flowWithError, defaultValue)
+        flowErrors.handleErrorsWithDefaultValue(flowWithError, defaultValue)
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .toList()
@@ -50,7 +52,7 @@ class FlowErrorsTest : BaseTest() {
 
     @Test
     fun `handle errors with fallback flow without error`() = runBlockingTest {
-        handleErrorsWithFallbackFlow(intFlow, flowOf(defaultValue))
+        flowErrors.handleErrorsWithFallbackFlow(intFlow, flowOf(defaultValue))
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .toList()
@@ -63,7 +65,7 @@ class FlowErrorsTest : BaseTest() {
     @Test
     fun `test handle errors with fallback flow with error`() = runBlockingTest {
         val flowWithError = intFlow.onCompletion { throw ExpectedException() }
-        handleErrorsWithFallbackFlow(flowWithError, flowOf(defaultValue))
+        flowErrors.handleErrorsWithFallbackFlow(flowWithError, flowOf(defaultValue))
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .toList()

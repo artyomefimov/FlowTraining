@@ -13,11 +13,13 @@ import org.junit.Test
 @ExperimentalCoroutinesApi
 class FlowSingleTest : BaseTest() {
 
+    private val flowSingle = FlowSingle()
+
     @Test
     fun `test only one element no error`() = runBlockingTest {
         val given = 1
 
-        onlyOneElement(given)
+        flowSingle.onlyOneElement(given)
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .collect { assertEquals(given, it) }
@@ -30,7 +32,7 @@ class FlowSingleTest : BaseTest() {
     fun `test only one element with error`() = runBlockingTest {
         val given = -1
 
-        onlyOneElement(given)
+        flowSingle.onlyOneElement(given)
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .collect { assertEquals(given, it) }
@@ -44,7 +46,7 @@ class FlowSingleTest : BaseTest() {
         val given = listOf(1, 2, 3)
         val expected = given.first()
 
-        firstElementOfSequence(given.asFlow())
+        flowSingle.firstElementOfSequence(given.asFlow())
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .collect { assertEquals(expected, it) }
@@ -55,7 +57,7 @@ class FlowSingleTest : BaseTest() {
 
     @Test
     fun `test only one element of sequence error`() = runBlockingTest {
-        firstElementOfSequence(flowOf())
+        flowSingle.firstElementOfSequence(flowOf())
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .toList()
@@ -69,7 +71,7 @@ class FlowSingleTest : BaseTest() {
         val given = flowOf(1, 2, 3)
         val expected = 6
 
-        calculateSumOfValues(given)
+        flowSingle.calculateSumOfValues(given)
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .collect { assertEquals(expected, it) }
@@ -82,7 +84,7 @@ class FlowSingleTest : BaseTest() {
     fun `test collection of values`() = runBlockingTest {
         val given = listOf(1, 2, 3)
 
-        collectionOfValues(given.asFlow())
+        flowSingle.collectionOfValues(given.asFlow())
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .collect { assertEquals(given, it) }
@@ -96,7 +98,7 @@ class FlowSingleTest : BaseTest() {
         val given = listOf(1, 2, 3)
         val expected = true
 
-        allElementsArePositive(given.asFlow())
+        flowSingle.allElementsArePositive(given.asFlow())
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .collect { assertEquals(expected, it) }
@@ -110,7 +112,7 @@ class FlowSingleTest : BaseTest() {
         val given = listOf(1, 2, -3)
         val expected = false
 
-        allElementsArePositive(given.asFlow())
+        flowSingle.allElementsArePositive(given.asFlow())
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .collect { assertEquals(expected, it) }

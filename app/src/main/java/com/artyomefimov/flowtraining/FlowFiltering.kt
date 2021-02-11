@@ -3,111 +3,114 @@ package com.artyomefimov.flowtraining
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
-/**
- * Только положительные числа
- *
- * @param intFlow [Flow] с произвольным количеством рандомных чисел
- * @return [Flow] только с положительными числами, отрицательные должны быть
- * отфильтрованы
- */
-fun onlyPositiveNumbers(intFlow: Flow<Int>) = flow {
-    emit(intFlow.toList().filter { it > 0 })
-}
+class FlowFiltering {
 
-/**
- * Эммит только последних значений
- *
- * @param count     Количество последних элементов, которые нужно эммитить
- * @param intFlow [Flow] с произвольным количеством рандомных чисел
- * @return [Flow] который эммитит последние значения
- */
-fun onlyLastValues(intFlow: Flow<Int>, count: Int) = flow {
-    emit(intFlow.toList().takeLast(count))
-}
+    /**
+     * Только положительные числа
+     *
+     * @param intFlow [Flow] с произвольным количеством рандомных чисел
+     * @return [Flow] только с положительными числами, отрицательные должны быть
+     * отфильтрованы
+     */
+    fun onlyPositiveNumbers(intFlow: Flow<Int>) = flow {
+        emit(intFlow.toList().filter { it > 0 })
+    }
 
-/**
- * Эммит только первых значений
- *
- * @param count     Количество первых элементов, которые нужно эммитить
- * @param intFlow [Flow] с произвольным количеством рандомных чисел
- * @return [Flow] который эммитит первые значения
- */
-fun onlyFirstValues(intFlow: Flow<Int>, count: Int) = flow {
-    emit(intFlow.take(count).toList())
-}
+    /**
+     * Эммит только последних значений
+     *
+     * @param count     Количество последних элементов, которые нужно эммитить
+     * @param intFlow [Flow] с произвольным количеством рандомных чисел
+     * @return [Flow] который эммитит последние значения
+     */
+    fun onlyLastValues(intFlow: Flow<Int>, count: Int) = flow {
+        emit(intFlow.toList().takeLast(count))
+    }
 
-/**
- * Отфильтровать первые значения
- *
- * @param count     Количество первых элементов, которые нужно отфильтровать
- * @param intFlow [Flow] с произвольным количеством рандомных чисел
- * @return [Flow] который эммитит значения из intFlow кроме первых
- * count значений
- */
-fun ignoreFirstValues(intFlow: Flow<Int>, count: Int) = flow {
-    emit(intFlow.drop(count).toList())
-}
+    /**
+     * Эммит только первых значений
+     *
+     * @param count     Количество первых элементов, которые нужно эммитить
+     * @param intFlow [Flow] с произвольным количеством рандомных чисел
+     * @return [Flow] который эммитит первые значения
+     */
+    fun onlyFirstValues(intFlow: Flow<Int>, count: Int) = flow {
+        emit(intFlow.take(count).toList())
+    }
 
-/**
- * Только последний элемент из всех элементов во временном периоде
- *
- * @param period    Период в миллисекундах, за который необходимо произвести выборку
- *                    последнего элемента
- * @param intFlow   [Flow] с произвольным количеством рандомных чисел
- * @return [Flow] который эммитит максимум 1 значения за интервал period
- */
-@FlowPreview
-fun onlyLastPerInterval(intFlow: Flow<Int>, period: Long) = flow {
-    emit(intFlow.sample(period).toList())
-}
+    /**
+     * Отфильтровать первые значения
+     *
+     * @param count     Количество первых элементов, которые нужно отфильтровать
+     * @param intFlow [Flow] с произвольным количеством рандомных чисел
+     * @return [Flow] который эммитит значения из intFlow кроме первых
+     * count значений
+     */
+    fun ignoreFirstValues(intFlow: Flow<Int>, count: Int) = flow {
+        emit(intFlow.drop(count).toList())
+    }
 
-/**
- * Ошибка при длительном ожидании элементов
- *
- * @param timeout Время ожидания в миллисекундах
- * @param intFlow [Flow] с произвольным количеством рандомных чисел
- * @return [Flow] который эммитит значения intFlow, или выдаёт ошибку,
- * если время ожидания превышает timeout
- */
-@ExperimentalCoroutinesApi
-fun errorIfLongWait(intFlow: Flow<Int>, timeout: Long) = channelFlow {
-    val result = mutableListOf<Int>()
-    var startTimeOfPeriod = System.currentTimeMillis()
-    val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    /**
+     * Только последний элемент из всех элементов во временном периоде
+     *
+     * @param period    Период в миллисекундах, за который необходимо произвести выборку
+     *                    последнего элемента
+     * @param intFlow   [Flow] с произвольным количеством рандомных чисел
+     * @return [Flow] который эммитит максимум 1 значения за интервал period
+     */
+    @FlowPreview
+    fun onlyLastPerInterval(intFlow: Flow<Int>, period: Long) = flow {
+        emit(intFlow.sample(period).toList())
+    }
 
-    intFlow
-        .onCompletion { offer(result) }
-        .onEach { value ->
-            val delta = System.currentTimeMillis() - startTimeOfPeriod
-            if (delta >= timeout) {
-                offer(result)
-                currentCoroutineContext().cancel()
-            } else {
-                result.add(value)
-                startTimeOfPeriod = System.currentTimeMillis()
+    /**
+     * Ошибка при длительном ожидании элементов
+     *
+     * @param timeout Время ожидания в миллисекундах
+     * @param intFlow [Flow] с произвольным количеством рандомных чисел
+     * @return [Flow] который эммитит значения intFlow, или выдаёт ошибку,
+     * если время ожидания превышает timeout
+     */
+    @ExperimentalCoroutinesApi
+    fun errorIfLongWait(intFlow: Flow<Int>, timeout: Long) = channelFlow {
+        val result = mutableListOf<Int>()
+        var startTimeOfPeriod = System.currentTimeMillis()
+        val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+        intFlow
+            .onCompletion { offer(result) }
+            .onEach { value ->
+                val delta = System.currentTimeMillis() - startTimeOfPeriod
+                if (delta >= timeout) {
+                    offer(result)
+                    currentCoroutineContext().cancel()
+                } else {
+                    result.add(value)
+                    startTimeOfPeriod = System.currentTimeMillis()
+                }
             }
-        }
-        .launchIn(scope)
-}
+            .launchIn(scope)
+    }
 
-/**
- * Значения без повторений
- *
- * @param intFlow [Flow] с произвольным количеством рандомных чисел
- * @return [Flow] который эммитит значения intFlow, но без повторяющихся
- * значений
- */
-fun ignoreDuplicates(intFlow: Flow<Int>) = flow {
-    emit(intFlow.toList().distinct())
-}
+    /**
+     * Значения без повторений
+     *
+     * @param intFlow [Flow] с произвольным количеством рандомных чисел
+     * @return [Flow] который эммитит значения intFlow, но без повторяющихся
+     * значений
+     */
+    fun ignoreDuplicates(intFlow: Flow<Int>) = flow {
+        emit(intFlow.toList().distinct())
+    }
 
-/**
- * Игноритуются повторяющиеся элементы, которые идут подряд
- *
- * @param intFlow [Flow] с произвольным количеством рандомных чисел
- * @return [Flow] который эммитит значения intFlow, но если новое значение
- * повторяет предыдущее, оно пропускается
- */
-fun onlyChangedValues(intFlow: Flow<Int>) = flow {
-    emit(intFlow.distinctUntilChanged().toList())
+    /**
+     * Игноритуются повторяющиеся элементы, которые идут подряд
+     *
+     * @param intFlow [Flow] с произвольным количеством рандомных чисел
+     * @return [Flow] который эммитит значения intFlow, но если новое значение
+     * повторяет предыдущее, оно пропускается
+     */
+    fun onlyChangedValues(intFlow: Flow<Int>) = flow {
+        emit(intFlow.distinctUntilChanged().toList())
+    }
 }

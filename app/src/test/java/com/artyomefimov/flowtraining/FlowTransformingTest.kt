@@ -1,7 +1,6 @@
 package com.artyomefimov.flowtraining
 
 import com.artyomefimov.flowtraining.model.Entity
-import com.artyomefimov.flowtraining.model.FlowTransformingEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.ObsoleteCoroutinesApi
@@ -19,12 +18,14 @@ import org.mockito.Mockito
 @ExperimentalCoroutinesApi
 class FlowTransformingTest : BaseTest() {
 
+    private val flowTransforming = Mockito.spy(FlowTransforming())
+
     @Test
     fun `test transform int to string`() = runBlockingTest {
         val given = listOf(0, 1, 2, 3)
         val expected = listOf("0", "1", "2", "3")
 
-        transformIntToString(given.asFlow())
+        flowTransforming.transformIntToString(given.asFlow())
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .collect { assertEquals(expected, it) }
@@ -36,7 +37,6 @@ class FlowTransformingTest : BaseTest() {
     @FlowPreview
     @Test
     fun `test get pair by id`() = runBlockingTest {
-        val entity = Mockito.spy(FlowTransformingEntity())
         val given = listOf(0, 1, 2, 3)
         val expected = listOf(
             Entity(0, "0"),
@@ -45,7 +45,7 @@ class FlowTransformingTest : BaseTest() {
             Entity(3, "3"),
         )
 
-        getPairById(entity = entity, intFlow = given.asFlow())
+        flowTransforming.getPairById(given.asFlow())
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .collect { assertEquals(expected, it) }
@@ -64,7 +64,7 @@ class FlowTransformingTest : BaseTest() {
             listOf(9, 10)
         )
 
-        collectsIntsToLists(given.asFlow(), 3)
+        flowTransforming.collectsIntsToLists(given.asFlow(), 3)
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .collect { assertEquals(expected, it) }
@@ -83,7 +83,7 @@ class FlowTransformingTest : BaseTest() {
             '3' to listOf("33", "34", "35"),
         )
 
-        distributeNamesByFirstLetter(given.asFlow())
+        flowTransforming.distributeNamesByFirstLetter(given.asFlow())
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .collect { assertEquals(expected, it) }

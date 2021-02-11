@@ -1,7 +1,6 @@
 package com.artyomefimov.flowtraining
 
 import com.artyomefimov.flowtraining.model.ExpectedException
-import com.artyomefimov.flowtraining.model.FlowCreatingEntity
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,11 +21,13 @@ import org.mockito.Mockito
 @ExperimentalCoroutinesApi
 class FlowCreatingTest : BaseTest() {
 
+    private val flowCreating = Mockito.spy(FlowCreating())
+
     @Test
     fun `test value to flow`() = runBlockingTest {
         val expected = 1
 
-        valueToFlow(expected)
+        flowCreating.valueToFlow(expected)
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .collect { assertEquals(expected, it) }
@@ -39,7 +40,7 @@ class FlowCreatingTest : BaseTest() {
     fun `test vararg to flow`() = runBlockingTest {
         val expected = listOf(1, 2, 3)
 
-        varargToFlow(1, 2, 3)
+        flowCreating.varargToFlow(1, 2, 3)
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .toList()
@@ -53,7 +54,7 @@ class FlowCreatingTest : BaseTest() {
     fun `test list to flow`() = runBlockingTest {
         val expected = listOf("1", "2", "3")
 
-        listToFlow(expected)
+        flowCreating.listToFlow(expected)
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .toList()
@@ -65,16 +66,15 @@ class FlowCreatingTest : BaseTest() {
 
     @Test
     fun `test expensive method result`() = runBlockingTest {
-        val entity = Mockito.spy(FlowCreatingEntity())
-        val flow = expensiveMethodResult(entity)
+        val flow = flowCreating.expensiveMethodResult()
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
 
-        verify(entity, never()).expensiveMethod()
+        verify(flowCreating, never()).expensiveMethod()
 
         flow.collect { assertEquals(Int.MAX_VALUE, it) }
 
-        verify(entity).expensiveMethod()
+        verify(flowCreating).expensiveMethod()
 
         assertTrue(testStatusController.isCompleted())
         assertTrue(testStatusController.noExceptions())
@@ -87,7 +87,7 @@ class FlowCreatingTest : BaseTest() {
         val result = mutableListOf<Long>()
 
         val job = launch {
-            increasingSequenceWithDelays(initialDelay, period)
+            flowCreating.increasingSequenceWithDelays(initialDelay, period)
                 .onCompletion { testStatusController.noticeCompletion() }
                 .catch { testStatusController.noticeException(it) }
                 .toList(result)
@@ -114,7 +114,7 @@ class FlowCreatingTest : BaseTest() {
         val result = mutableListOf<Long>()
 
         val job = launch {
-            delayedZero(delay)
+            flowCreating.delayedZero(delay)
                 .onCompletion { testStatusController.noticeCompletion() }
                 .catch { testStatusController.noticeException(it) }
                 .toList(result)
@@ -133,21 +133,20 @@ class FlowCreatingTest : BaseTest() {
 
     @Test
     fun `test methods combination with error`() = runBlockingTest {
-        val entity = Mockito.spy(FlowCreatingEntity())
-        val flow = combinationExpensiveMethods(entity = entity, condition = true)
+        val flow = flowCreating.combinationExpensiveMethods(condition = true)
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
         val result = mutableListOf<Int>()
 
-        verify(entity, never()).expensiveMethod()
-        verify(entity, never()).anotherExpensiveMethod()
-        verify(entity, never()).unstableMethod(anyBoolean())
+        verify(flowCreating, never()).expensiveMethod()
+        verify(flowCreating, never()).anotherExpensiveMethod()
+        verify(flowCreating, never()).unstableMethod(anyBoolean())
 
         flow.toList(result)
 
-        verify(entity).expensiveMethod()
-        verify(entity).anotherExpensiveMethod()
-        verify(entity).unstableMethod(anyBoolean())
+        verify(flowCreating).expensiveMethod()
+        verify(flowCreating).anotherExpensiveMethod()
+        verify(flowCreating).unstableMethod(anyBoolean())
 
         assertEquals(2, result.size)
         assertTrue(testStatusController.isCompleted())
@@ -156,21 +155,20 @@ class FlowCreatingTest : BaseTest() {
 
     @Test
     fun `test methods combination without error`() = runBlockingTest {
-        val entity = Mockito.spy(FlowCreatingEntity())
-        val flow = combinationExpensiveMethods(entity = entity, condition = false)
+        val flow = flowCreating.combinationExpensiveMethods(condition = false)
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
         val result = mutableListOf<Int>()
 
-        verify(entity, never()).expensiveMethod()
-        verify(entity, never()).anotherExpensiveMethod()
-        verify(entity, never()).unstableMethod(anyBoolean())
+        verify(flowCreating, never()).expensiveMethod()
+        verify(flowCreating, never()).anotherExpensiveMethod()
+        verify(flowCreating, never()).unstableMethod(anyBoolean())
 
         flow.toList(result)
 
-        verify(entity).expensiveMethod()
-        verify(entity).anotherExpensiveMethod()
-        verify(entity).unstableMethod(anyBoolean())
+        verify(flowCreating).expensiveMethod()
+        verify(flowCreating).anotherExpensiveMethod()
+        verify(flowCreating).unstableMethod(anyBoolean())
 
         assertEquals(3, result.size)
         assertTrue(testStatusController.isCompleted())
@@ -181,7 +179,7 @@ class FlowCreatingTest : BaseTest() {
     fun `test without any events`() = runBlockingTest {
         val result = mutableListOf<Int>()
         val job = launch {
-            withoutAnyEvents()
+            flowCreating.withoutAnyEvents()
                 .onCompletion { testStatusController.noticeCompletion() }
                 .catch { testStatusController.noticeException(it) }
                 .toList(result)
@@ -195,7 +193,7 @@ class FlowCreatingTest : BaseTest() {
 
     @Test
     fun `test only complete`() = runBlockingTest {
-        onlyComplete()
+        flowCreating.onlyComplete()
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .toList()
@@ -206,7 +204,7 @@ class FlowCreatingTest : BaseTest() {
 
     @Test
     fun `test only error`() = runBlockingTest {
-        onlyError()
+        flowCreating.onlyError()
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .toList()

@@ -15,6 +15,8 @@ import org.junit.Test
 class FlowMaybeTest : BaseTest() {
 
     private companion object {
+        val flowMaybe = FlowMaybe()
+
         const val POSITIVE_VALUE = 1
         const val NEGATIVE_VALUE = -1
         var expectedResult: Int? = null
@@ -22,7 +24,7 @@ class FlowMaybeTest : BaseTest() {
 
     @Test
     fun `test positive or empty success`() = runBlockingTest {
-        positiveOrEmpty(POSITIVE_VALUE)
+        flowMaybe.positiveOrEmpty(POSITIVE_VALUE)
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .collect { assertEquals(POSITIVE_VALUE, it) }
@@ -33,7 +35,7 @@ class FlowMaybeTest : BaseTest() {
 
     @Test
     fun `test positive or empty fail`() = runBlockingTest {
-        positiveOrEmpty(NEGATIVE_VALUE)
+        flowMaybe.positiveOrEmpty(NEGATIVE_VALUE)
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .collect { expectedResult = it }
@@ -45,7 +47,7 @@ class FlowMaybeTest : BaseTest() {
 
     @Test
     fun `test positive or empty from flow success`() = runBlockingTest {
-        positiveOrEmptyFromFlow(flowOf(POSITIVE_VALUE))
+        flowMaybe.positiveOrEmptyFromFlow(flowOf(POSITIVE_VALUE))
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .collect { assertEquals(POSITIVE_VALUE, it) }
@@ -56,7 +58,7 @@ class FlowMaybeTest : BaseTest() {
 
     @Test
     fun `test positive or empty from flow fail`() = runBlockingTest {
-        positiveOrEmptyFromFlow(flowOf(NEGATIVE_VALUE))
+        flowMaybe.positiveOrEmptyFromFlow(flowOf(NEGATIVE_VALUE))
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .collect { expectedResult = it }
@@ -69,7 +71,8 @@ class FlowMaybeTest : BaseTest() {
     @Test
     fun `test only one element has values`() = runBlockingTest {
         val defaultValue = 2
-        onlyOneElement(flowOf(POSITIVE_VALUE), defaultValue)
+
+        flowMaybe.onlyOneElement(flowOf(POSITIVE_VALUE), defaultValue)
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .collect { assertEquals(POSITIVE_VALUE, it) }
@@ -82,7 +85,7 @@ class FlowMaybeTest : BaseTest() {
     fun `test only one element no values`() = runBlockingTest {
         val defaultValue = 2
 
-        onlyOneElement(flowOf(), defaultValue)
+        flowMaybe.onlyOneElement(flowOf(), defaultValue)
             .onCompletion { testStatusController.noticeCompletion() }
             .catch { testStatusController.noticeException(it) }
             .collect { assertEquals(defaultValue, it) }
