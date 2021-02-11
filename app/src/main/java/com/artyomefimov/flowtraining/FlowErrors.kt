@@ -1,6 +1,5 @@
 package com.artyomefimov.flowtraining
 
-import com.artyomefimov.flowtraining.model.TestObject
 import kotlinx.coroutines.flow.*
 
 /**
@@ -13,7 +12,7 @@ import kotlinx.coroutines.flow.*
  * @return [Flow] который эммитит значения из intFlow, либо
  * defaultValue
  */
-fun TestObject.handleErrorsWithDefaultValue(intFlow: Flow<Int>, defaultValue: Int) = flow {
+fun handleErrorsWithDefaultValue(intFlow: Flow<Int>, defaultValue: Int) = flow {
     intFlow
         .catch { emit(defaultValue) }
         .onEach { emit(it) }
@@ -29,7 +28,7 @@ fun TestObject.handleErrorsWithDefaultValue(intFlow: Flow<Int>, defaultValue: In
  *                           переключиться в случае ошибки
  * @return [Flow] который эммитит значения из intFlow, либо fallbackFlow
  */
-fun TestObject.handleErrorsWithFallbackFlow(intFlow: Flow<Int>, fallbackFlow: Flow<Int>) = flow {
+fun handleErrorsWithFallbackFlow(intFlow: Flow<Int>, fallbackFlow: Flow<Int>) = flow {
     intFlow
         .catch { emitAll(fallbackFlow) }
         .onEach { emit(it) }

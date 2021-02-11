@@ -1,6 +1,6 @@
 package com.artyomefimov.flowtraining
 
-import com.artyomefimov.flowtraining.model.TestObject
+import com.artyomefimov.flowtraining.model.FlowTransformingEntity
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.*
  * @return [Flow] - который эммитит строки,
  * преобразованные из чисел в {@code intObservable}
  */
-fun TestObject.transformIntToString(intFlow: Flow<Int>) = flow {
+fun transformIntToString(intFlow: Flow<Int>) = flow {
     emit(intFlow.map { it.toString() }.toList())
 }
 
@@ -23,9 +23,9 @@ fun TestObject.transformIntToString(intFlow: Flow<Int>) = flow {
  * @return [Flow] эммитит сущности, соответствующие идентификаторам из intFlow
  */
 @FlowPreview
-fun TestObject.getPairById(intFlow: Flow<Int>) = flow {
+fun getPairById(entity: FlowTransformingEntity, intFlow: Flow<Int>) = flow {
     val mapped = intFlow.flatMapConcat {
-        flowOf(requestApiEntity(it))
+        flowOf(entity.requestApiEntity(it))
     }.toList()
     emit(mapped)
 }
@@ -38,7 +38,7 @@ fun TestObject.getPairById(intFlow: Flow<Int>) = flow {
  * @param intFlow  [Flow] с произвольным количеством рандомных чисел
  * @return {@code Observable} который эммитит списки чисел из intFlow
  */
-fun TestObject.collectsIntsToLists(intFlow: Flow<Int>, bufferSize: Int) = flow {
+fun collectsIntsToLists(intFlow: Flow<Int>, bufferSize: Int) = flow {
     val chunked = intFlow.toList().chunked(bufferSize)
     emit(chunked)
 }
@@ -50,7 +50,7 @@ fun TestObject.collectsIntsToLists(intFlow: Flow<Int>, bufferSize: Int) = flow {
  * @return [Flow] который эммитит Map<Char, List<String>> - сгруппированный
  * поток имён объединённых первой буквой в имени
  */
-fun TestObject.distributeNamesByFirstLetter(namesFlow: Flow<String>) = flow {
+fun distributeNamesByFirstLetter(namesFlow: Flow<String>) = flow {
     val groupedByFirstLetter = namesFlow.toList().groupBy { it[0] }
     emit(groupedByFirstLetter)
 }

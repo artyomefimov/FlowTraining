@@ -2,8 +2,7 @@ package com.artyomefimov.flowtraining.model
 
 import kotlinx.coroutines.delay
 
-open class TestObject {
-
+open class FlowCreatingEntity {
     open suspend fun expensiveMethod(): Int {
         delay(3000L)
         return Int.MAX_VALUE
@@ -19,6 +18,4 @@ open class TestObject {
             throw ExpectedException()
         return Int.MAX_VALUE
     }
-
-    open fun requestApiEntity(id: Int) = Entity(id, id.toString())
 }

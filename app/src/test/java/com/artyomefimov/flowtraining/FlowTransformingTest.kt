@@ -1,12 +1,19 @@
 package com.artyomefimov.flowtraining
 
 import com.artyomefimov.flowtraining.model.Entity
+import com.artyomefimov.flowtraining.model.FlowTransformingEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.test.runBlockingTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.mockito.Mockito
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
@@ -17,18 +24,19 @@ class FlowTransformingTest : BaseTest() {
         val given = listOf(0, 1, 2, 3)
         val expected = listOf("0", "1", "2", "3")
 
-        testObject.transformIntToString(given.asFlow())
-            .noticeCompletion()
-            .noticeError()
-            .assertValue(expected)
+        transformIntToString(given.asFlow())
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
+            .collect { assertEquals(expected, it) }
 
-        assertCompleted()
-        assertNoExceptions()
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.noExceptions())
     }
 
     @FlowPreview
     @Test
     fun `test get pair by id`() = runBlockingTest {
+        val entity = Mockito.spy(FlowTransformingEntity())
         val given = listOf(0, 1, 2, 3)
         val expected = listOf(
             Entity(0, "0"),
@@ -37,13 +45,13 @@ class FlowTransformingTest : BaseTest() {
             Entity(3, "3"),
         )
 
-        testObject.getPairById(given.asFlow())
-            .noticeCompletion()
-            .noticeError()
-            .assertValue(expected)
+        getPairById(entity = entity, intFlow = given.asFlow())
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
+            .collect { assertEquals(expected, it) }
 
-        assertCompleted()
-        assertNoExceptions()
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.noExceptions())
     }
 
     @Test
@@ -56,13 +64,13 @@ class FlowTransformingTest : BaseTest() {
             listOf(9, 10)
         )
 
-        testObject.collectsIntsToLists(given.asFlow(), 3)
-            .noticeCompletion()
-            .noticeError()
-            .assertValue(expected)
+        collectsIntsToLists(given.asFlow(), 3)
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
+            .collect { assertEquals(expected, it) }
 
-        assertCompleted()
-        assertNoExceptions()
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.noExceptions())
     }
 
     @Test
@@ -75,12 +83,12 @@ class FlowTransformingTest : BaseTest() {
             '3' to listOf("33", "34", "35"),
         )
 
-        testObject.distributeNamesByFirstLetter(given.asFlow())
-            .noticeCompletion()
-            .noticeError()
-            .assertValue(expected)
+        distributeNamesByFirstLetter(given.asFlow())
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
+            .collect { assertEquals(expected, it) }
 
-        assertCompleted()
-        assertNoExceptions()
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.noExceptions())
     }
 }

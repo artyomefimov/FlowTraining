@@ -1,6 +1,5 @@
 package com.artyomefimov.flowtraining
 
-import com.artyomefimov.flowtraining.model.TestObject
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
@@ -11,7 +10,7 @@ import kotlinx.coroutines.flow.*
  * @return [Flow] только с положительными числами, отрицательные должны быть
  * отфильтрованы
  */
-fun TestObject.onlyPositiveNumbers(intFlow: Flow<Int>) = flow {
+fun onlyPositiveNumbers(intFlow: Flow<Int>) = flow {
     emit(intFlow.toList().filter { it > 0 })
 }
 
@@ -22,7 +21,7 @@ fun TestObject.onlyPositiveNumbers(intFlow: Flow<Int>) = flow {
  * @param intFlow [Flow] с произвольным количеством рандомных чисел
  * @return [Flow] который эммитит последние значения
  */
-fun TestObject.onlyLastValues(intFlow: Flow<Int>, count: Int) = flow {
+fun onlyLastValues(intFlow: Flow<Int>, count: Int) = flow {
     emit(intFlow.toList().takeLast(count))
 }
 
@@ -33,7 +32,7 @@ fun TestObject.onlyLastValues(intFlow: Flow<Int>, count: Int) = flow {
  * @param intFlow [Flow] с произвольным количеством рандомных чисел
  * @return [Flow] который эммитит первые значения
  */
-fun TestObject.onlyFirstValues(intFlow: Flow<Int>, count: Int) = flow {
+fun onlyFirstValues(intFlow: Flow<Int>, count: Int) = flow {
     emit(intFlow.take(count).toList())
 }
 
@@ -45,7 +44,7 @@ fun TestObject.onlyFirstValues(intFlow: Flow<Int>, count: Int) = flow {
  * @return [Flow] который эммитит значения из intFlow кроме первых
  * count значений
  */
-fun TestObject.ignoreFirstValues(intFlow: Flow<Int>, count: Int) = flow {
+fun ignoreFirstValues(intFlow: Flow<Int>, count: Int) = flow {
     emit(intFlow.drop(count).toList())
 }
 
@@ -58,7 +57,7 @@ fun TestObject.ignoreFirstValues(intFlow: Flow<Int>, count: Int) = flow {
  * @return [Flow] который эммитит максимум 1 значения за интервал period
  */
 @FlowPreview
-fun TestObject.onlyLastPerInterval(intFlow: Flow<Int>, period: Long) = flow {
+fun onlyLastPerInterval(intFlow: Flow<Int>, period: Long) = flow {
     emit(intFlow.sample(period).toList())
 }
 
@@ -71,7 +70,7 @@ fun TestObject.onlyLastPerInterval(intFlow: Flow<Int>, period: Long) = flow {
  * если время ожидания превышает timeout
  */
 @ExperimentalCoroutinesApi
-fun TestObject.errorIfLongWait(intFlow: Flow<Int>, timeout: Long) = channelFlow {
+fun errorIfLongWait(intFlow: Flow<Int>, timeout: Long) = channelFlow {
     val result = mutableListOf<Int>()
     var startTimeOfPeriod = System.currentTimeMillis()
     val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -98,7 +97,7 @@ fun TestObject.errorIfLongWait(intFlow: Flow<Int>, timeout: Long) = channelFlow 
  * @return [Flow] который эммитит значения intFlow, но без повторяющихся
  * значений
  */
-fun TestObject.ignoreDuplicates(intFlow: Flow<Int>) = flow {
+fun ignoreDuplicates(intFlow: Flow<Int>) = flow {
     emit(intFlow.toList().distinct())
 }
 
@@ -109,6 +108,6 @@ fun TestObject.ignoreDuplicates(intFlow: Flow<Int>) = flow {
  * @return [Flow] который эммитит значения intFlow, но если новое значение
  * повторяет предыдущее, оно пропускается
  */
-fun TestObject.onlyChangedValues(intFlow: Flow<Int>) = flow {
+fun onlyChangedValues(intFlow: Flow<Int>) = flow {
     emit(intFlow.distinctUntilChanged().toList())
 }

@@ -1,6 +1,5 @@
 package com.artyomefimov.flowtraining
 
-import com.artyomefimov.flowtraining.model.TestObject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
@@ -13,7 +12,7 @@ import kotlinx.coroutines.flow.toList
  * @return [Flow] который эммитит значение value если оно положительное,
  * либо не эммитит ничего, если value отрицательное
  */
-fun TestObject.positiveOrEmpty(value: Int) = flow {
+fun positiveOrEmpty(value: Int) = flow {
     if (value > 0) emit(value)
 }
 
@@ -24,7 +23,7 @@ fun TestObject.positiveOrEmpty(value: Int) = flow {
  * @return [Flow] который эммитит значение из intFlow если оно эммитит
  * положительное число, иначе не эммитит ничего
  */
-fun TestObject.positiveOrEmptyFromFlow(intFlow: Flow<Int>) = flow {
+fun positiveOrEmptyFromFlow(intFlow: Flow<Int>) = flow {
     intFlow.firstOrNull()?.let { emitted ->
         if (emitted > 0)
             emit(emitted)
@@ -38,6 +37,6 @@ fun TestObject.positiveOrEmptyFromFlow(intFlow: Flow<Int>) = flow {
  * @return [Flow] который эммитит значение из intFlow, либо
  * defaultValue если последовательность пустая
  */
-fun TestObject.onlyOneElement(intFlow: Flow<Int>, defaultValue: Int) = flow {
+fun onlyOneElement(intFlow: Flow<Int>, defaultValue: Int) = flow {
     emit(intFlow.toList().firstOrNull() ?: defaultValue)
 }

@@ -1,11 +1,12 @@
 package com.artyomefimov.flowtraining
 
+import com.artyomefimov.flowtraining.model.ExpectedException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.test.runBlockingTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 @ObsoleteCoroutinesApi
@@ -14,103 +15,107 @@ class FlowSingleTest : BaseTest() {
 
     @Test
     fun `test only one element no error`() = runBlockingTest {
-        val value = 1
+        val given = 1
 
-        testObject.onlyOneElement(value)
-            .noticeError()
-            .noticeCompletion()
-            .assertValue(value)
+        onlyOneElement(given)
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
+            .collect { assertEquals(given, it) }
 
-        assertCompleted()
-        assertNoExceptions()
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.noExceptions())
     }
 
     @Test
     fun `test only one element with error`() = runBlockingTest {
-        val value = -1
+        val given = -1
 
-        testObject.onlyOneElement(value)
-            .noticeError()
-            .noticeCompletion()
-            .assertValue(value)
+        onlyOneElement(given)
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
+            .collect { assertEquals(given, it) }
 
-        assertCompleted()
-        assertExpectedException()
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.hasException(ExpectedException::class))
     }
 
     @Test
     fun `test only one element of sequence success`() = runBlockingTest {
-        val data = listOf(1, 2, 3)
+        val given = listOf(1, 2, 3)
+        val expected = given.first()
 
-        testObject
-            .firstElementOfSequence(data.asFlow())
-            .noticeError()
-            .noticeCompletion()
-            .assertValue(data.first())
+        firstElementOfSequence(given.asFlow())
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
+            .collect { assertEquals(expected, it) }
 
-        assertCompleted()
-        assertNoExceptions()
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.noExceptions())
     }
 
     @Test
     fun `test only one element of sequence error`() = runBlockingTest {
-        testObject
-            .firstElementOfSequence(flowOf())
-            .noticeError()
-            .noticeCompletion()
+        firstElementOfSequence(flowOf())
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
             .toList()
 
-        assertCompleted()
-        assertExpectedException()
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.hasException(ExpectedException::class))
     }
 
     @Test
     fun `test calculate sum of values`() = runBlockingTest {
-        testObject.calculateSumOfValues(flowOf(1, 2, 3))
-            .noticeError()
-            .noticeCompletion()
-            .assertValue(6)
+        val given = flowOf(1, 2, 3)
+        val expected = 6
 
-        assertCompleted()
-        assertNoExceptions()
+        calculateSumOfValues(given)
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
+            .collect { assertEquals(expected, it) }
+
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.noExceptions())
     }
 
     @Test
     fun `test collection of values`() = runBlockingTest {
-        val data = listOf(1, 2, 3)
+        val given = listOf(1, 2, 3)
 
-        testObject.collectionOfValues(data.asFlow())
-            .noticeError()
-            .noticeCompletion()
-            .assertValue(data)
+        collectionOfValues(given.asFlow())
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
+            .collect { assertEquals(given, it) }
 
-        assertCompleted()
-        assertNoExceptions()
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.noExceptions())
     }
 
     @Test
     fun `test all elements are positive`() = runBlockingTest {
-        val data = listOf(1, 2, 3)
+        val given = listOf(1, 2, 3)
+        val expected = true
 
-        testObject.allElementsArePositive(data.asFlow())
-            .noticeError()
-            .noticeCompletion()
-            .assertValue(true)
+        allElementsArePositive(given.asFlow())
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
+            .collect { assertEquals(expected, it) }
 
-        assertCompleted()
-        assertNoExceptions()
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.noExceptions())
     }
 
     @Test
     fun `test not all elements are positive`() = runBlockingTest {
-        val data = listOf(1, 2, -3)
+        val given = listOf(1, 2, -3)
+        val expected = false
 
-        testObject.allElementsArePositive(data.asFlow())
-            .noticeError()
-            .noticeCompletion()
-            .assertValue(false)
+        allElementsArePositive(given.asFlow())
+            .onCompletion { testStatusController.noticeCompletion() }
+            .catch { testStatusController.noticeException(it) }
+            .collect { assertEquals(expected, it) }
 
-        assertCompleted()
-        assertNoExceptions()
+        assertTrue(testStatusController.isCompleted())
+        assertTrue(testStatusController.noExceptions())
     }
 }

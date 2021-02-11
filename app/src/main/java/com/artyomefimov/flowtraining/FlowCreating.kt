@@ -1,7 +1,7 @@
 package com.artyomefimov.flowtraining
 
 import com.artyomefimov.flowtraining.model.ExpectedException
-import com.artyomefimov.flowtraining.model.TestObject
+import com.artyomefimov.flowtraining.model.FlowCreatingEntity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.flow
  * @param value - Произвольное число
  * @return [Flow], который эммитит только значение {@code value}
  */
-fun TestObject.valueToFlow(value: Int) = flow {
+fun valueToFlow(value: Int) = flow {
     emit(value)
 }
 
@@ -23,7 +23,7 @@ fun TestObject.valueToFlow(value: Int) = flow {
  * @param values - Произвольное количество чисел
  * @return [Flow], который эммитит по порядку все числа, переданные в аргументы метода
  */
-fun TestObject.varargToFlow(vararg values: Int) = values.asFlow()
+fun varargToFlow(vararg values: Int) = values.asFlow()
 
 /**
  * Эммит элементов списка в [Flow]
@@ -31,7 +31,7 @@ fun TestObject.varargToFlow(vararg values: Int) = values.asFlow()
  * @param list - Список произвольных строк
  * @return [Flow], который эммитит по порядку все строки из заданного массива
  */
-fun TestObject.listToFlow(list: List<String>) = flow {
+fun listToFlow(list: List<String>) = flow {
     list.forEach {
         emit(it)
     }
@@ -44,8 +44,8 @@ fun TestObject.listToFlow(list: List<String>) = flow {
  * @return [Flow] - который эммитит результат выполнения метода
  * {@link #expensiveMethod()}
  */
-fun TestObject.expensiveMethodResult() = flow {
-    emit(expensiveMethod())
+fun expensiveMethodResult(entity: FlowCreatingEntity) = flow {
+    emit(entity.expensiveMethod())
 }
 
 /**
@@ -57,7 +57,7 @@ fun TestObject.expensiveMethodResult() = flow {
  * Значения начинают эммититься с задержкой {@code initialDelay} миллисекунд и каждый
  * последующий с интервалом {@code period} миллисекунд.
  */
-fun TestObject.increasingSequenceWithDelays(
+fun increasingSequenceWithDelays(
     initialDelay: Long,
     period: Long
 ) = flow {
@@ -75,7 +75,7 @@ fun TestObject.increasingSequenceWithDelays(
  * @return [Flow] который эммитит только одно значение 0L с указанной
  * задержкой {@code delay}
  */
-fun TestObject.delayedZero(delay: Long) = flow {
+fun delayedZero(delay: Long) = flow {
     delay(delay)
     emit(0L)
 }
@@ -90,10 +90,10 @@ fun TestObject.delayedZero(delay: Long) = flow {
  * 2. {@link #alternativeExpensiveMethod()}
  * 3. {@link #unstableMethod(boolean)}
  */
-fun TestObject.combinationExpensiveMethods(condition: Boolean) = flow {
-    emit(expensiveMethod())
-    emit(anotherExpensiveMethod())
-    emit(unstableMethod(condition))
+fun combinationExpensiveMethods(entity: FlowCreatingEntity, condition: Boolean) = flow {
+    emit(entity.expensiveMethod())
+    emit(entity.anotherExpensiveMethod())
+    emit(entity.unstableMethod(condition))
 }
 
 /**
@@ -101,7 +101,7 @@ fun TestObject.combinationExpensiveMethods(condition: Boolean) = flow {
  *
  * @return [Flow] который не эммитит ни одного элемента и не завершается
  */
-fun TestObject.withoutAnyEvents() = flow<Int> {
+fun withoutAnyEvents() = flow<Int> {
     delay(Long.MAX_VALUE)
 }
 
@@ -110,13 +110,13 @@ fun TestObject.withoutAnyEvents() = flow<Int> {
  *
  * @return [Flow] который не эммитит значения, а только завершается
  */
-fun TestObject.onlyComplete() = flow<Int> {  }
+fun onlyComplete() = flow<Int> {  }
 
 /**
  * Только одна ошибка
  *
  * @return [Flow] который не эммитит значения, только бросает [ExpectedException]]
  */
-fun TestObject.onlyError() = flow<Nothing> {
+fun onlyError() = flow<Nothing> {
     throw ExpectedException()
 }
